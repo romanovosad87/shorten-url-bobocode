@@ -4,37 +4,38 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.view.freemarker.FreeMarkerConfig;
+import org.springframework.web.bind.annotation.ResponseBody;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
 public class ShortenerController {
-    private final UrlShortenerProcessor processor;
-    private final FreeMarkerConfig templateConfig;
     private final ShortenerService shortenerService;
+
+    @GetMapping
+    @ResponseBody
+    public String index() {
+        return "Hello!";
+    }
 
 
     @GetMapping("/short")
-    public String shortenUrl() {
-        var template = processor.getTemplate(templateConfig, "shortener.ftl");
-        Map<String, Object> model = new HashMap<>();
-        model.put("shortenUrl", "___________________________");
-        return processor.processTemplate(model, template);
+    public String shortenUrl(Model model) {
+        model.addAttribute("shortenUrl", "_____________________");
+        return "shortener";
     }
 
     @PostMapping("/short")
-    public String shortenUrlPost(@RequestParam("inputUrl") String inputUrl) {
+    public String shortenUrlPost(@RequestParam("inputUrl") String inputUrl, Model model) {
         String shortenUrl = shortenerService.shortenUrl(inputUrl);
-        var template = processor.getTemplate(templateConfig, "shortener.ftl");
-        return processor.processTemplate(Map.of("shortenUrl", shortenUrl), template);
+        model.addAttribute("shortenUrl", shortenUrl);
+        return "shortener";
     }
 
     @GetMapping("short/{key}")
